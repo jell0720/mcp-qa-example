@@ -1,0 +1,4 @@
+/.env
+/.qodo
+/.venv
+/langflow_mcp_tool.egg-info
