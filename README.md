@@ -8,89 +8,185 @@
 - 檢查 Langflow 服務的狀態
 - 提供查詢提示模板
 
-## 安裝
+## 系統要求
 
-### 前提條件
+### 必要條件
 
-- Python 3.8+
-- [MCP](https://github.com/modelcontextprotocol/python-sdk) 已安裝
-- Claude Desktop 應用已安裝 (如果需要使用 Claude 集成功能)
+- **Python**: >= 3.10（由於 MCP 1.3.0 的要求）
+- [MCP](https://github.com/modelcontextprotocol/python-sdk) >= 1.3.0
+- Claude Desktop 應用（如需使用 Claude 集成功能）
+- [uv](https://github.com/astral-sh/uv) 套件管理器（推薦）
 
-### 使用 pip 安裝
+### 相依套件
+
+- requests >= 2.31.0
+- python-dotenv >= 1.0.0
+- typer >= 0.9.0
+- uvicorn >= 0.22.0
+
+## 安裝步驟
+
+### 1. 確認 Python 版本
 
 ```bash
-pip install .
+python --version  # 確保版本 >= 3.10
 ```
 
-## 配置
+### 2. 使用 uv 創建虛擬環境
 
-在使用前，您需要設定相關環境變數。您可以創建一個 `.env` 文件，包含以下設定：
+```bash
+# 安裝 uv（如果尚未安裝）
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
+# 創建虛擬環境
+uv venv .venv
+
+# 激活虛擬環境
+source .venv/bin/activate
 ```
+
+### 3. 安裝依賴
+
+```bash
+# 使用 uv 安裝依賴
+uv pip install -e .
+```
+
+### 4. 配置環境變數
+
+創建 `.env` 文件並設置以下參數：
+
+```ini
 # Langflow API 設定
-LANGFLOW_API_URL=http://127.0.0.1:7864
-LANGFLOW_FLOW_ID=your-flow-id-here
-LANGFLOW_ENDPOINT=
-LANGFLOW_API_KEY=
+LANGFLOW_API_URL=http://127.0.0.1:7864  # 根據您的 Langflow 服務地址調整
+LANGFLOW_FLOW_ID=your-flow-id-here      # 您的 Langflow flow ID
+LANGFLOW_ENDPOINT=                       # 可選的端點名稱
+LANGFLOW_API_KEY=                        # 如果需要 API 密鑰
 
 # 服務器設定
-PORT=8000
+PORT=8000                               # MCP 服務器運行的端口
 ```
 
 ## 使用方法
 
-### 安裝到 Claude Desktop
+### 開發模式
+
+在開發模式下運行並測試：
 
 ```bash
-langflow-mcp install --name "Langflow 文檔問答" --env-file .env
+langflow-mcp dev
 ```
 
-### 開發模式運行
+這將啟動：
+- MCP 服務器在 http://localhost:8000
+- MCP Inspector 在 http://localhost:5173
+
+### 安裝到 Claude Desktop
+
+確保所有依賴都正確安裝：
 
 ```bash
-langflow-mcp dev --port 8000
+mcp install langflow_mcp_tool/server.py \
+    --name "Langflow 文檔問答" \
+    --with requests \
+    --with python-dotenv \
+    --with uvicorn \
+    --with typer
 ```
 
 ### 直接運行服務器
 
 ```bash
-langflow-mcp run --port 8000
+langflow-mcp run
 ```
 
-## MCP 功能
+## 功能說明
 
-### 工具 (Tools)
+### 1. 查詢功能 (Tool)
 
-- `langflow_query`: 向 Langflow 文檔問答系統提交查詢並獲取結果
+在 Claude 中使用：
 
-### 資源 (Resources)
+```
+使用 langflow_query 工具來查詢 "您的問題"
+```
 
-- `langflow_status`: 取得 Langflow 服務狀態
+參數:
+- `query`: 要檢索的查詢或問題
+- `tweaks`: (可選) 用於自定義 flow 的參數
 
-### 提示模板 (Prompts)
+### 2. 狀態查詢 (Resource)
 
-- `langflow_query_template`: 提供一個用於查詢 Langflow 的提示模板
+檢查服務狀態：
 
-## 開發
+```
+請檢查 langflow://status 資源
+```
 
-要進行開發，請遵循以下步驟：
+### 3. 查詢模板 (Prompt)
 
-1. 克隆此倉庫
-2. 使用 uv 創建虛擬環境並安裝依賴：
+使用預定義模板：
+
+```
+使用 langflow_query_template 提示，我想查詢 "您的問題"
+```
+
+## 故障排除
+
+### 常見問題
+
+1. **Python 版本錯誤**
+   - 確保使用 Python >= 3.10
+   - 使用 `python --version` 檢查版本
+
+2. **依賴問題**
+   - 確保所有依賴都已正確安裝
+   - 使用 `--with` 參數安裝必要依賴
+
+3. **連接問題**
+   - 確認 Langflow 服務運行中
+   - 檢查 `.env` 中的 URL 設定
+
+4. **Claude Desktop 整合問題**
+   - 確保所有依賴都在安裝時指定
+   - 檢查 Claude Desktop 的錯誤日誌
+
+### 日誌和調試
+
+- 使用 `--verbose` 參數運行 CLI 命令獲取詳細日誌
+- 檢查 Claude Desktop 的錯誤日誌
+- 使用 MCP Inspector 進行調試
+
+## 開發指南
+
+### 本地開發
+
+1. 克隆倉庫
+2. 創建虛擬環境
+3. 安裝開發依賴：
    ```bash
-   uv venv .venv
-   source .venv/bin/activate
-   uv add "mcp[cli]" requests python-dotenv typer uvicorn
+   uv pip install -e ".[dev]"
    ```
-3. 安裝可編輯模式的包：
+4. 運行測試：
    ```bash
-   pip install -e .
+   pytest
    ```
-4. 運行開發服務器：
-   ```bash
-   langflow-mcp dev
-   ```
+
+### 代碼風格
+
+- 使用 Black 進行代碼格式化
+- 遵循 PEP 8 規範
+- 添加適當的類型提示
 
 ## 授權
 
-MIT 
+MIT
+
+## 支持資源
+
+- [MCP 文檔](https://github.com/modelcontextprotocol/python-sdk)
+- [Langflow 文檔](https://docs.langflow.org)
+- [問題追蹤](https://github.com/your-repo/issues)
+
+---
+
+如有任何問題或建議，請隨時提出 issue 或聯繫開發團隊。 
