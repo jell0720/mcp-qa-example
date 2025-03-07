@@ -156,6 +156,30 @@ langflow-mcp run
 - 檢查 Claude Desktop 的錯誤日誌
 - 使用 MCP Inspector 進行調試
 
+## 專案結構
+
+```
+langflow-mcp-tool/
+├── langflow_mcp_tool/           # 主要程式碼目錄
+│   ├── __init__.py             # 套件初始化檔案
+│   ├── cli.py                  # CLI 工具實現
+│   └── server.py               # MCP 服務器實現
+├── .env                        # 環境變數配置
+├── .gitignore                  # Git 忽略檔案
+├── pyproject.toml              # 專案配置和依賴管理
+├── README.md                   # 專案文檔
+├── requirements.txt            # 依賴套件列表
+└── uv.lock                     # uv 套件管理器鎖定檔案
+```
+
+### 主要檔案說明
+
+- `langflow_mcp_tool/server.py`: 實現了 MCP 服務器的核心功能，包括查詢處理和狀態檢查
+- `langflow_mcp_tool/cli.py`: 提供命令行介面，用於啟動服務器和安裝工具
+- `pyproject.toml`: 定義專案元數據、依賴和構建設定
+- `.env`: 包含環境變數配置，如 API URL 和密鑰
+- `requirements.txt`: 列出專案的 Python 套件依賴
+
 ## 開發指南
 
 ### 本地開發
